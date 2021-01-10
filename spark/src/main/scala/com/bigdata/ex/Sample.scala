@@ -65,6 +65,11 @@ class Sample extends Transformation {
     }
 
     val concat_udf1 = udf(concat_udf _)
+    
+    /*
+     * By default working of udf is slow when compared the default functions available in spark sql package 
+     * Most of the transformations we can complete using the functions provided in the spark sql package
+     */
 
     val final_df = joined_df.withColumn("Full_name", concat_udf1(col("FIRST_NAME"), col("LAST_NAME")))
     
