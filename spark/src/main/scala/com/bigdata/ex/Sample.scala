@@ -67,6 +67,13 @@ class Sample extends Transformation {
     val concat_udf1 = udf(concat_udf _)
 
     val final_df = joined_df.withColumn("Full_name", concat_udf1(col("FIRST_NAME"), col("LAST_NAME")))
+    
+    /* using the show function to execute the process
+     * as the spark executes lazily
+     * 
+     * 
+     *  */
+    
 
     final_df.show(10)
   }
