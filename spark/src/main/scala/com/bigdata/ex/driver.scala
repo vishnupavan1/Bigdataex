@@ -20,7 +20,21 @@ object driver {
      * 
      *  */
 
-    val process_obj = Class.forName("com.bigdata.ex.Sample").newInstance().asInstanceOf[com.bigdata.ex.Transformation]
+    var class_name:String = ""
+
+    def parse_arguments(a:Array[String]) = {
+
+        var i = 0
+
+      for (i <- 0 to a.length - 1 ) {
+
+         class_name =  "com.bigdata.ex.".concat(a(i))
+
+      }
+
+    }
+    parse_arguments(args)
+    val process_obj = Class.forName(class_name).newInstance().asInstanceOf[com.bigdata.ex.Transformation]
     
     /*
      * 
