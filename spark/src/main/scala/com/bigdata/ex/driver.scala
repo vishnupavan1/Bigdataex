@@ -12,8 +12,9 @@ object driver {
      * 
      * This sample project has two methods 
      * 1.Initialize --> This will create the spark session --> Entry point for spark execution 
-     * 2.Process --> This will start the process and run the instructions 
-     * 
+     * 2.read --> This will read the source data and outputs the dataframe
+     * 3.Process --> This method will process the bussiness logic and outputs the dataframe
+     * 4.write --> This method will write the data to the requried path
      * we can use property file --> which will contain the process name , and class name to run we can read the property file
      * and parse the arguments and trigger the code for different data sources
      * 
@@ -27,7 +28,9 @@ object driver {
      * */
     
     process_obj.initialize()
+    process_obj.read()
     process_obj.process()
+    process_obj.write()
     
   }
 }
