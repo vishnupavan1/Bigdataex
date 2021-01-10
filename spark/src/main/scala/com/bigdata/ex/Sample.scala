@@ -7,10 +7,7 @@ import org.apache.spark.sql.functions._
 import org.apache.spark.sql.functions.udf
 import org.apache.spark.sql.functions._
 import com.bigdata.ex.Transformation
-import org.apache.spark.sql.Dataset
-import org.apache.spark.sql.Dataset
-import org.apache.spark.sql.Row
-
+import org.apache.spark.sql.DataFrame
 class Sample extends Transformation {
 
   /**
@@ -20,7 +17,8 @@ class Sample extends Transformation {
    */
 
   var spark: SparkSession = _
-
+  var input_df:DataFrame =  _
+  var output_df:DataFrame = _
 
   override def initialize(): SparkSession =
     {
@@ -28,14 +26,21 @@ class Sample extends Transformation {
       return spark
     }
 
-  override def process() = {
+  override  def read():DataFrame = {
 
-    val emp_df1 = spark.
+    input_df = spark.
       read.
       format("csv").
       option("inferSchema", true).
       option("header", true).
       load("C:\\Users\\vishn\\Desktop\\Hadoop\\Employee")
+
+      return input_df
+
+  }
+
+  override def process():DataFrame = {
+
 
     val dept_df1 = spark.
       read.
@@ -43,8 +48,8 @@ class Sample extends Transformation {
       option("inferSchema", true).
       option("header", true).
       load("C:\\Users\\vishn\\Desktop\\Hadoop\\Departments")
-      
-      /*By Default sort merge joins will take place
+
+    /*By Default sort merge joins will take place
        * 
        * Since the two datasets are very small and broadcast hash join will takes place.
        * 
@@ -54,7 +59,9 @@ class Sample extends Transformation {
        * 
        * */
 
-    val joined_df = emp_df1.as("emp").join(dept_df1.as("dept"), col("emp.DEPARTMENT_ID") === col("dept.DEPARTMENT_ID"), "inner")
+    val joined_df = input_df.as("emp").join(dept_df1.as("dept"), col("emp.DEPARTMENT_ID") === col("dept.DEPARTMENT_ID"), "inner").
+      drop(col("dept.DEPARTMENT_ID")).
+      drop(col("dept.MANAGER_ID"))
 
     def concat_udf(first: String, last: String): String = {
 
@@ -65,23 +72,27 @@ class Sample extends Transformation {
     }
 
     val concat_udf1 = udf(concat_udf _)
-    
-    /*
-     * By default working of udf is slow when compared the default functions available in spark sql package 
-     * Most of the transformations we can complete using the functions provided in the spark sql package
-     */
 
     val final_df = joined_df.withColumn("Full_name", concat_udf1(col("FIRST_NAME"), col("LAST_NAME")))
-    
+
     /* using the show function to execute the process
      * as the spark executes lazily
      * 
      * 
      *  */
-    
 
-    final_df.show(10)
+    output_df = final_df
+    return output_df
   }
+   override def write() ={
+
+      output_df.repartition(1).write.
+        format("csv").
+        mode("overWrite").
+        option("header", true).
+        save("C:\\Users\\vishn\\Desktop\\Hadoop\\output")
+    }
+
 
 }
   
