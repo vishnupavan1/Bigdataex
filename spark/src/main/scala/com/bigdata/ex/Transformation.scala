@@ -10,6 +10,8 @@ import org.apache.spark.sql.DataFrame
 trait Transformation {
 
       def initialize():SparkSession
-      def process()
+      def read():DataFrame
+      def process():DataFrame
+      def write():Unit
 
 }
