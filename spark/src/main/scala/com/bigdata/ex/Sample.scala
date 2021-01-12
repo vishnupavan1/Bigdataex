@@ -92,7 +92,6 @@ class Sample extends Transformation {
         option("header", true).
         save("C:\\Users\\vishn\\Desktop\\Hadoop\\output")
     }
-        spark.stop()
 
 }
   
