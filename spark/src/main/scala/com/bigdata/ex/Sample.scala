@@ -59,7 +59,7 @@ class Sample extends Transformation {
        * 
        * */
 
-    val joined_df = input_df.as("emp").join(dept_df1.as("dept"), col("emp.DEPARTMENT_ID") === col("dept.DEPARTMENT_ID"), "inner").
+    val joined_df = input_df.as("emp").join(broadcast(dept_df1.as("dept")), col("emp.DEPARTMENT_ID") === col("dept.DEPARTMENT_ID"), "inner").
       drop(col("dept.DEPARTMENT_ID")).
       drop(col("dept.MANAGER_ID"))
 
@@ -72,8 +72,10 @@ class Sample extends Transformation {
     }
 
     val concat_udf1 = udf(concat_udf _)
+    val upperUDF = udf { s: String => s.toUpperCase }
 
-    val final_df = joined_df.withColumn("Full_name", concat_udf1(col("FIRST_NAME"), col("LAST_NAME")))
+    val final_df = joined_df.withColumn("Full_name", concat_udf1(col("FIRST_NAME"), col("LAST_NAME"))).
+      withColumn("Upper_case",upperUDF(col("FIRST_NAME")))
 
     /* using the show function to execute the process
      * as the spark executes lazily
@@ -92,6 +94,7 @@ class Sample extends Transformation {
         option("header", true).
         save("C:\\Users\\vishn\\Desktop\\Hadoop\\output")
     }
+
 
 }
   
